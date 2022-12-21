@@ -21,31 +21,30 @@
                         <td class="p-3">
                             <div class="flex align-items-center">
                                 <div class="ml-3">
-                                    <div class="">{{ stock["stock_symbol"] }}</div>
-
+                                    <div class="">{{ stock.getStockSymbol }}</div>
                                 </div>
                             </div>
                         </td>
                         <td class="p-3">
-                            {{ stock["SUM(stock_amount)"] }}
+                            {{ stock.getStockAmount }}
                         </td>
                         <td class="p-3 font-bold">
-                            {{ stock["average_price"]|number_format(2,".",",") }}
+                            {{ stock.getAveragePrice|number_format(2,".",",") }}
                         </td>
                         <td class="p-3 font-bold">
-                            {{ marketData.getStocks[stock["stock_symbol"]].getCurrentPrice | number_format(2,".",",")}}
+                            {{ marketData.getStocks[stock.getStockSymbol].getCurrentPrice | number_format(2,".",",")}}
                         </td>
                         <td class="p-3 font-bold">
-                            {{ ((marketData.getStocks[stock["stock_symbol"]].getCurrentPrice - stock["average_price"])*stock["SUM(stock_amount)"])|number_format(2,".",",") }}
+                            {{ ((marketData.getStocks[stock.getStockSymbol].getCurrentPrice - stock.getAveragePrice)*stock.getStockAmount)|number_format(2,".",",") }}
                         </td>
                         <td class="p-3 ">
-                            <a href="/orderForm?stockSymbol={{ stock["stock_symbol"] }}" class="text-gray-400 hover:text-gray-100 mr-2">
+                            <a href="/orderForm?stockSymbol={{ stock.getStockSymbol }}" class="text-gray-400 hover:text-gray-100 mr-2">
                                 <i class="material-icons-outlined text-base">Buy</i>
                             </a>
-                            <a href="/orderForm?stockSymbol={{ stock["stock_symbol"] }}" class="text-gray-400 hover:text-gray-100  ml-2">
+                            <a href="/orderForm?stockSymbol={{ stock.getStockSymbol }}" class="text-gray-400 hover:text-gray-100  ml-2">
                                 <i class="material-icons-round text-base">Sell</i>
                             </a>
-                            <a href="/transactions?stockSymbol={{ stock["stock_symbol"] }}" class="text-gray-400 hover:text-gray-100  ml-2">
+                            <a href="/transactions?stockSymbol={{ stock.getStockSymbol }}" class="text-gray-400 hover:text-gray-100  ml-2">
                                 <i class="material-icons-round text-base">Transactions</i>
                             </a>
                         </td>

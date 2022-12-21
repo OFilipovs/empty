@@ -3,7 +3,9 @@
 namespace WSB\Repositories;
 
 
+use WSB\Models\Collections\PurchasedStocksCollection;
 use WSB\Models\Collections\StocksCollection;
+use WSB\Models\PurchasedStock;
 use WSB\MySqlDataBaseConnection;
 use WSB\Services\UserDetails;
 
@@ -60,23 +62,43 @@ class MySqlUserRepository implements UserRepository
         ];
     }
 
-    public function getStocks(int $id): array
+    public function getStocks(int $id): PurchasedStocksCollection
     {
         $queryBuilder = $this->connection->getConnection()->createQueryBuilder();
-        $user = $queryBuilder
-            ->select("stock_symbol, SUM(stock_amount), SUM(stock_amount * order_price) / SUM(stock_amount) AS average_price")
+        $userStocks = $queryBuilder
+            ->select("stock_symbol, stock_amount")
             ->from("stocks")
             ->where("user_id = ?")
             ->setParameter(0, $id)
-            ->groupBy("stock_symbol")
             ->fetchAllAssociative();
-        return $user;
+
+        $stocksTransactions = $queryBuilder
+            ->select("transactions.stock_symbol, SUM(stock_price * transactions.stock_amount)/SUM(transactions.stock_amount) AS average_price")
+            ->from("transactions")
+            ->where("transactions.user_id = ?")
+            ->andWhere("action_type = 'BUY' ")
+            ->setParameter(0, $id)
+            ->groupBy("stock_symbol")
+            ->fetchAllAssociativeIndexed();
+
+        $purchasedStocksCollection = new PurchasedStocksCollection();
+        foreach ($userStocks as $stock){
+            $purchasedStocksCollection->add
+            (
+                new PurchasedStock(
+                    $stock["stock_symbol"],
+                    $stock["stock_amount"],
+                    $stocksTransactions[$stock["stock_symbol"]]["average_price"]
+                )
+            );
+        }
+        return $purchasedStocksCollection;
     }
 
     public function getStock(int $id, string $stockSymbol)
     {
         $queryBuilder = $this->connection->getConnection()->createQueryBuilder();
-        $user = $queryBuilder
+        $userStocks = $queryBuilder
             ->select("SUM(stock_amount)")
             ->from("stocks")
             ->where("user_id = ?")
@@ -84,7 +106,7 @@ class MySqlUserRepository implements UserRepository
             ->setParameter(0, $id)
             ->setParameter(1, $stockSymbol)
             ->fetchOne();
-        return $user;
+        return $userStocks;
     }
 
     public function saveTransaction(
@@ -121,8 +143,6 @@ class MySqlUserRepository implements UserRepository
             $statement->bindValue(':price', $price);
 
             $statement->executeStatement();
-
-            $queryBuilder = $connection->createQueryBuilder();
 //            $queryBuilder
 //                ->update()
 //                ->insert("stocks")
@@ -147,7 +167,7 @@ class MySqlUserRepository implements UserRepository
             throw $e;
         }
 
-
+        $queryBuilder = $connection->createQueryBuilder();
         $queryBuilder
             ->insert("transactions")
             ->values(

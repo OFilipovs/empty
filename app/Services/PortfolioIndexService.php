@@ -23,8 +23,9 @@ class PortfolioIndexService
         $ownedStocks = $this->userRepository->getStocks($id);
         $stockCollection = new StocksCollection();
         $moneyInWallet = $this->userRepository->getUSD($id);
-        foreach ($ownedStocks as $stock) {
-            $stockCollection->add($this->stockRepository->getStock($stock["stock_symbol"]));
+
+        foreach ($ownedStocks->getPurchasedStocks() as $stock) {
+            $stockCollection->add($this->stockRepository->getStock($stock->getStockSymbol()));
         }
 
         return new PortfolioIndexVariables

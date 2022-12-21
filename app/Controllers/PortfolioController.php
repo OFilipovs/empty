@@ -30,10 +30,8 @@ class PortfolioController
 
     public function index(): Template
     {
-        // new way to calculate average price from Transactions table
-        // new Model for purchased stocks
-        // new Model for purchasedStockTransactions
         // calculate Profit / Loss
+        // new Model for calculations P/L Total ;Cost utt
 
         $id = $_SESSION["auth_id"];
         $portfolioIndexVariables = $this->indexService->execute($id);
@@ -41,7 +39,7 @@ class PortfolioController
         (
             "portfolio.twig",
             [
-                "stocks" => $portfolioIndexVariables->ownedStocks,
+                "stocks" => $portfolioIndexVariables->ownedStocks->getPurchasedStocks(),
                 "marketData" => $portfolioIndexVariables->stocksCollection,
                 "money" => $portfolioIndexVariables->moneyInWallet
             ]
