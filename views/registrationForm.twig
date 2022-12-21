@@ -1,0 +1,82 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+          content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        let passConfirm = function() {
+            if (document.getElementById("Password").value ==
+                document.getElementById("ConfirmPassword").value) {
+                document.getElementById("Message").style.color = "Green";
+                document.getElementById("Message").innerHTML = "Passwords match!"
+            } else {
+                document.getElementById("Message").style.color = "Red";
+                document.getElementById("Message").innerHTML = "Passwords do NOT match!"
+            }
+        }
+    </script>
+    <title>Document</title>
+</head>
+<body>
+<!-- component -->
+<div class="bg-grey-lighter min-h-screen flex flex-col">
+    <div class="container max-w-sm mx-auto flex-1 flex flex-col items-center justify-center px-2">
+        <div class="bg-white px-6 py-8 rounded shadow-md text-black w-full">
+            <h1 class="mb-8 text-3xl text-center">Sign up</h1>
+            <form action="/register" method="post">
+                {% if validationErrors.name %}
+                    <div class="text-red-500">{{ validationErrors.name | first }}</div>
+                {% endif %}
+                <input
+                        type="text"
+                        value="{{ validInputs.name }}"
+                        class="block border border-grey-light w-full p-3 rounded mb-4 {{ validationErrors.name ? "invalid:border-red-500" : ""}}"
+                        name="name"
+                        placeholder="Full Name"
+                        required
+                />
+                {% if validationErrors.email %}
+                    <div class="text-red-500">{{ validationErrors.email | first }}</div>
+                {% endif %}
+                <input
+                        type="text"
+                        value="{{ validInputs.email }}"
+                        class="block border border-grey-light w-full p-3 rounded mb-4 {{ validationErrors.email ? "invalid:border-red-500" : ""}}"
+                        name="email"
+                        placeholder="Email"
+                        required
+                />
+                {% if validationErrors.password %}
+                    <div class="text-red-500">{{ validationErrors.password | first }}</div>
+                {% endif %}
+                <input
+                        class="block border border-grey-light w-full p-3 rounded mb-4 {{ validationErrors.password ? "invalid:border-red-500" : ""}}"
+                        name="password" id="Password" type="password" placeholder="Password" onkeyup='passConfirm();'
+                        required
+                />
+                <input
+                        class="block border border-grey-light w-full p-3 rounded mb-4 {{ validationErrors.password ? "invalid:border-red-500" : ""}}"
+                        type="password" name="confirmPassword" placeholder="Confirm Password" id="ConfirmPassword" onkeyup='passConfirm();'
+                        required
+                />
+                <span id="Message"></span>
+                <button
+                        type="submit"
+                        class="w-full text-center py-3 rounded bg-green-300 text-white hover:bg-green-dark focus:outline-none my-1"
+                >
+                    Create Account
+                </button>
+            </form>
+
+            <div class="text-center">
+                <a  href="/">Back to home</a>
+            </div>
+
+        </div>
+    </div>
+</div>
+</body>
+</html>

@@ -1,0 +1,39 @@
+{% extends "home.twig" %}
+
+{% block search %}
+    <div class="bg-blue-200 p-4 rounded-lg shadow-lg">
+        <form method="post">
+            {% if validationErrors.amountError %}
+                <div class="text-red-500">{{ validationErrors.amountError }}</div>
+            {% endif %}
+            <label for="amount" class="block font-bold text-blue-800 mb-2">
+                Amount:
+            </label>
+            <input type="number" id="amount" name="amount" class="border-blue-800 p-2 rounded-lg w-full">
+            <input type="hidden" name="stockSymbol" value={{ symbol }}>
+
+            <br>
+
+            <label class="block font-bold text-blue-800 mb-2">
+                Stock Name: {{ symbol }}
+            </label>
+            <span id="stock-name" class="text-blue-800"></span>
+
+            <br>
+
+            <label class="block font-bold text-blue-800 mb-2">
+                Stock Current Price: {{ price }}
+            </label>
+            <span id="stock-price" class="text-blue-800"></span>
+
+            <br>
+
+            <button type="submit" formaction="/order?stockSymbol={{ symbol }}&orderType=BUY" class="bg-blue-800 text-white font-bold py-2 px-4 rounded-lg">
+                Buy
+            </button>
+            <button type="submit" formaction="/order?stockSymbol={{ symbol }}&orderType=SELL" class="bg-blue-800 text-white font-bold py-2 px-4 rounded-lg">
+                Sell
+            </button>
+        </form>
+    </div>
+{% endblock %}

@@ -1,10 +1,16 @@
 <?php
 require_once '../vendor/autoload.php';
 
+use DI\Container;
 use Twig\Environment;
 use Twig\Loader\FilesystemLoader;
 use Dotenv\Dotenv;
+use WSB\Config;
+use WSB\Repositories\MySqlUserRepository;
+use WSB\Repositories\StockRepository;
+use WSB\Repositories\UserRepository;
 use WSB\Template;
+use function DI\autowire;
 
 date_default_timezone_set("Europe/Riga");
 session_start();
@@ -12,6 +18,24 @@ $dotenv = Dotenv::createImmutable(__DIR__."/..");
 $dotenv->load();
 $loader = new FilesystemLoader('../views');
 $twig = new Environment($loader);
+
+$container = new Container();
+$container->set(
+    Config::class, \DI\create(Config::class)->constructor($_ENV)
+);
+
+$container->set(
+    UserRepository::class,
+    autowire(MySqlUserRepository::class)
+);
+
+$container->set(
+    StockRepository::class,
+    autowire(\WSB\Repositories\FinnHubStockRepository::class)
+);
+
+
+
 
 $dispatcher = FastRoute\simpleDispatcher
 (
@@ -25,11 +49,8 @@ $dispatcher = FastRoute\simpleDispatcher
         $routes->addRoute('POST', '/login', ['WSB\Controllers\LoginController', 'login']);
         $routes->addRoute('GET', '/logout', ['WSB\Controllers\LoginController', 'logout']);
         $routes->addRoute('GET', '/portfolio', ['WSB\Controllers\PortfolioController', 'index']);
-        $routes->addRoute('POST', '/buy', ['WSB\Controllers\PortfolioController', 'buy']);
-        $routes->addRoute('GET', '/buyForm', ['WSB\Controllers\PortfolioController', 'buyForm']);
-        $routes->addRoute('POST', '/buyForm', ['WSB\Controllers\PortfolioController', 'buyForm']);
-        $routes->addRoute('GET', '/sellForm', ['WSB\Controllers\PortfolioController', 'sellForm']);
-        $routes->addRoute('POST', '/sell', ['WSB\Controllers\PortfolioController', 'sell']);
+        $routes->addRoute('POST', '/order', ['WSB\Controllers\PortfolioController', 'order']);
+        $routes->addRoute('GET', '/orderForm', ['WSB\Controllers\PortfolioController', 'orderForm']);
         $routes->addRoute('GET', '/transactions', ['WSB\Controllers\PortfolioController', 'transactionView']);
     }
 );
@@ -38,8 +59,8 @@ $authVars = [
     \WSB\ViewVariables\AuthViewVariables::class
 ];
 foreach ($authVars as $var) {
-    $var = new $var;
-    $twig->addGlobal($var->getName(), $var->getValue());
+//    $var = ;
+    $twig->addGlobal($container->get($var)->getName(), $container->get($var)->getValue());
 }
 $httpMethod = $_SERVER['REQUEST_METHOD'];
 $uri = $_SERVER['REQUEST_URI'];
@@ -63,7 +84,7 @@ switch ($routeInfo[0]) {
         $vars = $routeInfo[2];
 
         [$controller, $method] = $handler;
-        $response = (new $controller)->{$method}();
+        $response = $container->get($controller)->{$method}();
 
         if ($response instanceof Template){
             if (! empty($_SESSION["errors"]))

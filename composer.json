@@ -1,5 +1,16 @@
 {
+    "autoload": {
+        "psr-4": {
+            "WSB\\": "app/"
+        }
+    },
     "require": {
-        "doctrine/dbal": "^3.5"
+        "doctrine/dbal": "^3.5",
+        "twig/twig": "^3.4",
+        "vlucas/valitron": "^1.4",
+        "vlucas/phpdotenv": "^5.5",
+        "nikic/fast-route": "^1.3",
+        "guzzlehttp/guzzle": "^7.0",
+        "php-di/php-di": "^6.4"
     }
 }

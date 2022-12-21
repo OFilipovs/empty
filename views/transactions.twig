@@ -1,0 +1,55 @@
+{% extends "home.twig" %}
+
+{% block search %}
+    <div class="col-span-12">
+        <div class="overflow-auto lg:overflow-visible ">
+            <table class="table text-gray-400 border-separate space-y-6 text-sm">
+                <thead class="bg-gray-800 text-gray-500">
+                <tr>
+                    <th class="p-3">
+                        <a href="/portfolio" class="text-gray-400 hover:text-gray-100 underline ml-2">
+                            <i class="material-icons-round text-base">Back to Portfolio</i>
+                        </a>
+                        <div>Stock Symbol: {{ stock }}</div>
+                    </th>
+                </tr>
+                </thead>
+                <thead class="bg-gray-800 text-gray-500">
+                <tr>
+                    <th class="p-3">Stock Symbol</th>
+                    <th class="p-3 text-left">Stock Amount</th>
+                    <th class="p-3 text-left">Order Type</th>
+                    <th class="p-3 text-left">Order Time</th>
+                    <th class="p-3 text-left">Price</th>
+                </tr>
+                </thead>
+                <tbody>
+                {% for transaction in stockTransactions %}
+                    <tr class="bg-gray-800">
+                        <td class="p-3">
+                            <div class="flex align-items-center">
+                                <div class="ml-3">
+                                    <div class="">{{ transaction["stock_symbol"] }}</div>
+
+                                </div>
+                            </div>
+                        </td>
+                        <td class="p-3">
+                            {{ transaction["stock_amount"] }}
+                        </td>
+                        <td class="p-3 font-bold">
+                            {{ transaction["action_type"] }}
+                        </td>
+                        <td class="p-3 font-bold">
+                            {{ transaction["action_date"]|date('d/m/Y G:i' ) }}
+                        </td>
+                        <td class="p-3 font-bold">
+                            {{ transaction["action_price"]|number_format(2,".",",") }}
+                        </td>
+                    </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+{% endblock %}
