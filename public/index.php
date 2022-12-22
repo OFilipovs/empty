@@ -52,6 +52,7 @@ $dispatcher = FastRoute\simpleDispatcher
         $routes->addRoute('POST', '/order', ['WSB\Controllers\PortfolioController', 'order']);
         $routes->addRoute('GET', '/orderForm', ['WSB\Controllers\PortfolioController', 'orderForm']);
         $routes->addRoute('GET', '/transactions', ['WSB\Controllers\PortfolioController', 'transactionView']);
+        $routes->addRoute('GET', '/transfers', ['WSB\Controllers\TransferController', 'index']);
     }
 );
 
@@ -99,7 +100,6 @@ switch ($routeInfo[0]) {
             unset($_SESSION["errors"]);
             unset($_SESSION["validInputs"]);
         }
-
         break;
 }
 

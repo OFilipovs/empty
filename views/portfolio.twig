@@ -12,6 +12,7 @@
                     <th class="p-3 text-left">Average Purchase Price (USD)</th>
                     <th class="p-3 text-left">Current Price (USD)</th>
                     <th class="p-3 text-left">Profit \ Loss (USD)</th>
+                    <th class="p-3 text-left">Total Value (USD)</th>
                     <th class="p-3 text-left">Action</th>
                 </tr>
                 </thead>
@@ -35,7 +36,10 @@
                             {{ marketData.getStocks[stock.getStockSymbol].getCurrentPrice | number_format(2,".",",")}}
                         </td>
                         <td class="p-3 font-bold">
-                            {{ ((marketData.getStocks[stock.getStockSymbol].getCurrentPrice - stock.getAveragePrice)*stock.getStockAmount)|number_format(2,".",",") }}
+                            {{ statistics[stock.getStockSymbol].getProfitLoss | number_format(2,".",",") }}
+                        </td>
+                        <td class="p-3 font-bold">
+                            {{ statistics[stock.getStockSymbol].getTotalValue | number_format(2,".",",") }}
                         </td>
                         <td class="p-3 ">
                             <a href="/orderForm?stockSymbol={{ stock.getStockSymbol }}" class="text-gray-400 hover:text-gray-100 mr-2">

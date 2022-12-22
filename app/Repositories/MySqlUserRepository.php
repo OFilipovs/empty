@@ -2,9 +2,7 @@
 
 namespace WSB\Repositories;
 
-
 use WSB\Models\Collections\PurchasedStocksCollection;
-use WSB\Models\Collections\StocksCollection;
 use WSB\Models\PurchasedStock;
 use WSB\MySqlDataBaseConnection;
 use WSB\Services\UserDetails;
@@ -143,26 +141,6 @@ class MySqlUserRepository implements UserRepository
             $statement->bindValue(':price', $price);
 
             $statement->executeStatement();
-//            $queryBuilder
-//                ->update()
-//                ->insert("stocks")
-//                ->values(
-//                    [
-//                        "user_id" => ":id",
-//                        "stock_symbol" => ":symbol",
-//                        "stock_amount" => ":amount",
-//                        "order_price" => ":price",
-//                    ]
-//                )
-//                ->setParameters(
-//                    [
-//                        'id' => $id,
-//                        'symbol' => $symbol,
-//                        'amount' => $amount,
-//                        'price' => $price
-//                    ]
-//                );
-//            $queryBuilder->executeQuery();
         } catch(\Exception $e){
             throw $e;
         }

@@ -41,7 +41,8 @@ class PortfolioController
             [
                 "stocks" => $portfolioIndexVariables->ownedStocks->getPurchasedStocks(),
                 "marketData" => $portfolioIndexVariables->stocksCollection,
-                "money" => $portfolioIndexVariables->moneyInWallet
+                "money" => $portfolioIndexVariables->moneyInWallet,
+                "statistics" => $portfolioIndexVariables->statisticsCollection->getPurchasedStatistics()
             ]
         );
     }
