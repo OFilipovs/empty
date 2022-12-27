@@ -1,4 +1,16 @@
-# Features
+# Introduction
+
+Want to own your own stock exchane? Look no futher. This project has it all:
+trading your favorite stocks, following the price trends and more. 
+
+The technologies used:
+- PHP
+- Twig
+- PHP-DI
+- Tailwind CSS
+- MySQL
+
+## Features
 
 - You can view changes to stocks on the market
 - Search your favorite companys
@@ -6,7 +18,7 @@
 - View your order history for each stock on transactions page.
 - If you have more than enoug of stock shares, transfer to a friend.
 
-# Requirements
+## Requirements
 
 - PHP 7.4.32
 - Composer
