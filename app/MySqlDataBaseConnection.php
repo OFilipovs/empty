@@ -9,11 +9,18 @@ class MySqlDataBaseConnection
 {
     private ?Connection $connection;
 
-    public function __construct(Config $config)
+    public function __construct()
     {
-        $this->connection = DriverManager::getConnection($config->getConfig());
+        $this->connection = DriverManager::getConnection(
+            [
+                "host" => "localhost",
+                "user" => "root",
+                "password" => "root",
+                "dbname" => "sign_up",
+                "driver" => "pdo_mysql"
+            ]
+        );
     }
-
 
     public function getConnection(): ?Connection
     {

@@ -3,7 +3,9 @@
 namespace WSB\Repositories;
 
 use WSB\Models\Collections\PurchasedStocksCollection;
+use WSB\Models\Collections\UsersCollection;
 use WSB\Models\PurchasedStock;
+use WSB\Models\RegisteredUser;
 use WSB\MySqlDataBaseConnection;
 use WSB\Services\UserDetails;
 
@@ -67,6 +69,7 @@ class MySqlUserRepository implements UserRepository
             ->select("stock_symbol, stock_amount")
             ->from("stocks")
             ->where("user_id = ?")
+            ->andWhere("stock_amount != 0")
             ->setParameter(0, $id)
             ->fetchAllAssociative();
 
@@ -93,18 +96,22 @@ class MySqlUserRepository implements UserRepository
         return $purchasedStocksCollection;
     }
 
-    public function getStock(int $id, string $stockSymbol)
+    public function getStock(int $id, string $stockSymbol): PurchasedStock
     {
         $queryBuilder = $this->connection->getConnection()->createQueryBuilder();
-        $userStocks = $queryBuilder
-            ->select("SUM(stock_amount)")
+        $userStock = $queryBuilder
+            ->select("stock_symbol, stock_amount")
             ->from("stocks")
             ->where("user_id = ?")
             ->andWhere("stock_symbol = ?")
             ->setParameter(0, $id)
             ->setParameter(1, $stockSymbol)
-            ->fetchOne();
-        return $userStocks;
+            ->fetchAllAssociative();
+
+        return new PurchasedStock(
+            $userStock[0]["stock_symbol"],
+            $userStock[0]["stock_amount"]
+        );
     }
 
     public function saveTransaction(
@@ -119,31 +126,74 @@ class MySqlUserRepository implements UserRepository
         $operator = $order === "BUY" ? "-" : "+";
         $amount = ($operator . $shares) * -1;
         $connection = $this->connection->getConnection();
-        try {
-            $query = "INSERT INTO stocks (
-                    user_id, 
-                    stock_symbol, 
-                    stock_amount,
-                    order_price
-                    ) VALUES (
-                              :id, 
-                              :symbol, 
-                              :amount,
-                              :price) ON DUPLICATE KEY UPDATE user_id = :id, 
-                                                              stock_amount = stock_amount + :amount,
-                                                              order_price = :price";
 
-            $statement = $connection->prepare($query);
 
-            $statement->bindValue(':id', $id);
-            $statement->bindValue(':symbol', $symbol);
-            $statement->bindValue(':amount', $amount);
-            $statement->bindValue(':price', $price);
+        $queryBuilder = $connection->createQueryBuilder();
+        $userStocks = $queryBuilder
+            ->select("stock_symbol")
+            ->from("stocks")
+            ->where("user_id = ?")
+            ->andWhere("stock_symbol = ?")
+            ->setParameter(0, $id)
+            ->setParameter(1, $symbol)
+            ->fetchAllAssociative();
 
-            $statement->executeStatement();
-        } catch(\Exception $e){
-            throw $e;
+        if (! $userStocks){
+            $queryBuilder
+                ->insert("stocks")
+                ->values(
+                    [
+                        "user_id" => ":id",
+                        "stock_symbol" => ":symbol",
+                        "stock_amount" => ":amount",
+                    ]
+                )
+                ->setParameters(
+                    [
+                        'id' => $id,
+                        'symbol' => $symbol,
+                        'amount' => $amount,
+                    ]
+                );
+            $queryBuilder->executeQuery();
+        } else {
+            $queryBuilder
+                ->update("stocks")
+                ->set("stock_amount", "stock_amount + :amount")
+                ->where("user_id = :id")
+                ->andWhere("stock_symbol = :symbol")
+                ->setParameters(
+                    [
+                        'id' => $id,
+                        'symbol' => $symbol,
+                        'amount' => $amount,
+                    ]
+                );
+            $queryBuilder->executeQuery();
         }
+
+//        $query = "INSERT INTO stocks (
+//                user_id,
+//                stock_symbol,
+//                stock_amount,
+//                order_price
+//                ) VALUES (
+//                          :id,
+//                          :symbol,
+//                          :amount,
+//                          :price) ON DUPLICATE KEY UPDATE user_id = :id,
+//                                                          stock_amount = stock_amount + :amount,
+//                                                          order_price = :price";
+//
+//        $statement = $connection->prepare($query);
+//        $statement->bindValue(':id', $id);
+//        $statement->bindValue(':symbol', $symbol);
+//        $statement->bindValue(':amount', $amount);
+//        $statement->bindValue(':price', $price);
+//        $statement->executeStatement();
+
+
+
 
         $queryBuilder = $connection->createQueryBuilder();
         $queryBuilder
@@ -202,9 +252,119 @@ class MySqlUserRepository implements UserRepository
             ->from("transactions")
             ->where("user_id = ?")
             ->andWhere("stock_symbol = ?")
+            ->addOrderBy("action_date", "DESC")
             ->setParameter(0, $id)
             ->setParameter(1, $symbol)
             ->fetchAllAssociative();
     }
 
+    public function getUsers($id): UsersCollection
+    {
+        $queryBuilder = $this->connection->getConnection()->createQueryBuilder();
+        $users = $queryBuilder
+            ->select("*")
+            ->from("users")
+            ->where("userid != :id")
+            ->setParameter("id",$id )
+            ->fetchAllAssociative();
+
+        $collection = new UsersCollection;
+
+        foreach ($users as $user){
+            $collection->add(
+                new RegisteredUser(
+                    $user["userid"],
+                    $user["name"],
+                    $user["email"]
+                )
+            );
+        }
+        return $collection;
+    }
+
+    public function transfer ($email, $amount, $symbol, $senderId)
+    {
+        $connection = $this->connection->getConnection();
+        $receiverId = $this->retrieveId($email)["id"];
+
+        $queryBuilder = $connection->createQueryBuilder();
+        $userStocks = $queryBuilder
+            ->select("stock_symbol")
+            ->from("stocks")
+            ->where("user_id = ?")
+            ->andWhere("stock_symbol = ?")
+            ->setParameter(0, $receiverId)
+            ->setParameter(1, $symbol)
+            ->fetchAllAssociative();
+
+        if (! $userStocks){
+            $queryBuilder
+                ->insert("stocks")
+                ->values(
+                    [
+                        "user_id" => ":id",
+                        "stock_symbol" => ":symbol",
+                        "stock_amount" => ":amount",
+                    ]
+                )
+                ->setParameters(
+                    [
+                        'id' => $receiverId,
+                        'symbol' => $symbol,
+                        'amount' => $amount,
+                    ]
+                );
+            $queryBuilder->executeQuery();
+
+            $queryBuilder
+                ->update("stocks")
+                ->set("stock_amount", "stock_amount - :amount")
+                ->where("user_id = :id")
+                ->andWhere("stock_symbol = :symbol")
+                ->setParameters(
+                    [
+                        'id' => $senderId,
+                        'symbol' => $symbol,
+                        'amount' => $amount,
+                    ]
+                );
+            $queryBuilder->executeQuery();
+        } else {
+            $queryBuilder
+                ->update("stocks")
+                ->set("stock_amount", "stock_amount + :amount")
+                ->where("user_id = :id")
+                ->andWhere("stock_symbol = :symbol")
+                ->setParameters(
+                    [
+                        'id' => $receiverId,
+                        'symbol' => $symbol,
+                        'amount' => $amount,
+                    ]
+                );
+            $queryBuilder->executeQuery();
+
+            $queryBuilder2 = $connection->createQueryBuilder();
+            $queryBuilder2
+                ->update("stocks")
+                ->set("stock_amount", "stock_amount - :amount")
+                ->where("user_id = :id")
+                ->andWhere("stock_symbol = :symbol")
+                ->setParameters(
+                    [
+                        'id' => $senderId,
+                        'symbol' => $symbol,
+                        'amount' => $amount,
+                    ]
+                );
+            $queryBuilder2->executeQuery();
+        }
+
+//        $statement = $connection->prepare($query);
+//        $statement->bindValue(':id', $receiver["id"]);
+//        $statement->bindValue(':symbol', $symbol);
+//        $statement->bindValue(':amount', $amount);
+//        $statement->bindValue(':price', $price);
+//        $statement->executeStatement();
+    }
 }

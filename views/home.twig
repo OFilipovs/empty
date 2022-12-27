@@ -13,6 +13,7 @@
 
     {% if auth.id is defined %}
         <a href="/portfolio">Portfolio</a>
+        <a href="/transfers">Transfers</a>
         <div class="flex mx-4">
             <div class="mr-3">
                 <p class="text-white font-bold">Welcome, {{ auth.name }}</p>
@@ -31,8 +32,9 @@
     {% endif %}
 </nav>
 
+{% if auth.id is defined %}
 <div class="flex justify-between items-center py-2 px-4">
-    <form action="/buyForm" method="get">
+    <form action="/orderForm" method="get">
         <label>
             <input type="text" name="stockSymbol" placeholder="Search" class="border rounded py-1 px-2 focus:outline-none focus:shadow-outline" />
         </label>
@@ -41,6 +43,18 @@
         </button>
     </form>
 </div>
+{% else %}
+    <div class="flex justify-between items-center py-2 px-4">
+        <form action="/search" method="get">
+            <label>
+                <input type="text" name="stockSymbol" placeholder="Search" class="border rounded py-1 px-2 focus:outline-none focus:shadow-outline" />
+            </label>
+            <button type="submit" class="bg-blue-500 rounded py-1 px-2 text-white font-bold focus:outline-none focus:shadow-outline">
+                Search
+            </button>
+        </form>
+    </div>
+{% endif %}
 
 <div class="flex items-center justify-center min-h-screen bg-gray-900">
     {% block search %}
@@ -53,7 +67,9 @@
                     <th class="p-3 text-left">Company Name</th>
                     <th class="p-3 text-left">Price</th>
                     <th class="p-3 text-left">Previous Close Price</th>
+                    {% if auth.id is defined %}
                     <th class="p-3 text-left">Action</th>
+                    {% endif %}
                 </tr>
                 </thead>
                 <tbody>
@@ -76,14 +92,16 @@
                         <td class="p-3">
                             <span class=" text-gray-50 rounded-md px-2">{{ stock.getPreviousClosePrice }}</span>
                         </td>
+                        {% if auth.id is defined %}
                         <td class="p-3 ">
-                            <a href="#" class="text-gray-400 hover:text-gray-100 mr-2">
+                            <a href="/orderForm?stockSymbol={{ stock.getStockSymbol }}" class="text-gray-400 hover:text-gray-100 mr-2">
                                 <i class="material-icons-outlined text-base">Buy</i>
                             </a>
                             <a href="#" class="text-gray-400 hover:text-gray-100  ml-2">
                                 <i class="material-icons-round text-base">Sell</i>
                             </a>
                         </td>
+                        {% endif %}
                     </tr>
                 {% endfor %}
                 </tbody>

@@ -1,5 +1,35 @@
 {% extends "home.twig" %}
 
 {% block search %}
- {{ hello }}
+ <div class="bg-blue-100 rounded-lg w-1/2 p-4 flex flex-col">
+  {% if validInputs %}
+   <div class="mb-4">{{ validInputs }}</div>
+  {% endif %}
+  {% if validationErrors %}
+   <div class="mb-4">{{ validationErrors }}</div>
+  {% endif %}
+  <form action="/send" method="post" class="w-full">
+   <div class="relative rounded-md shadow-sm flex items-center p-2 w-full justify-center">
+    <input type="number" min="1" name="amount" placeholder="Enter amount" class="form-input py-1 px-2 block w-1/4 mr-2 leading-5 rounded-md transition duration-150 ease-in-out sm:text-sm sm:leading-5" />
+    <select name="email" class="form-select py-1 px-2 block w-1/4 ml-2 leading-5 rounded-md transition duration-150 ease-in-out sm:text-sm sm:leading-5">
+     {% for user in users %}
+      <option value="{{ user.getEmail() }}">{{ user.getEmail() }}</option>
+     {% endfor %}
+    </select>
+    <select name="purchasedStock" class="form-select py-1 px-2 block w-1/4 ml-2 leading-5 rounded-md transition duration-150 ease-in-out sm:text-sm sm:leading-5">
+     {% for purchasedStock in purchasedStocks %}
+         {% if purchasedStock.getStockAmount > 0 %}
+      <option value="{{ purchasedStock.getStockSymbol }}">{{ purchasedStock.getStockSymbol }} - owned: {{ purchasedStock.getStockAmount }}</option>
+         {% endif %}
+     {% endfor %}
+    </select>
+   </div>
+   <div class="pt-4 text-center">
+    <button type="submit" class="bg-blue-500 rounded py-1 px-2 text-white font-bold focus:outline-none focus:shadow-outline" aria-label="Send">
+     Send
+    </button>
+   </div>
+  </form>
+ </div>
 {% endblock %}
+

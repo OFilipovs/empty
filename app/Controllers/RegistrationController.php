@@ -11,6 +11,13 @@ use WSB\Template;
 
 class RegistrationController
 {
+    private MySqlUserRepository $userRepository;
+
+    public function __construct(MySqlUserRepository $userRepository)
+    {
+        $this->userRepository = $userRepository;
+    }
+
     public function index(): Template
     {
         return new Template
@@ -40,7 +47,7 @@ class RegistrationController
         $validationErrors = (new FormValidationService())->validateForm($userCredentials);
         if ($validationErrors === null)
         {
-            (new MySqlUserRepository())->writeToTable(new UserDetails($_POST));
+            $this->userRepository->writeToTable(new UserDetails($_POST));
             header("Location: /registerConfirmation");
         } else {
             $_SESSION["errors"] = $validationErrors;

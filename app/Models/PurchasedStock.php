@@ -6,17 +6,17 @@ class PurchasedStock
 {
     private string $stockSymbol;
     private int $stockAmount;
-    private float $averagePrice;
+    private ?float $averagePrice;
 
     public function __construct(
         string $stockSymbol,
         int $stockAmount,
-        float $averagePrice
+        float $averagePrice = null
     )
     {
         $this->stockSymbol = $stockSymbol;
         $this->stockAmount = $stockAmount;
-        $this->averagePrice = $averagePrice;
+        $this->averagePrice = $averagePrice ?? 0;
     }
 
     public function getStockSymbol(): string

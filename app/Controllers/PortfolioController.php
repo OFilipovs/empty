@@ -2,6 +2,7 @@
 
 namespace WSB\Controllers;
 
+use League\Csv\Exception;
 use WSB\Services\PortfolioIndexService;
 use WSB\Services\OrderService;
 use WSB\Services\OrderFormService;
@@ -64,8 +65,8 @@ class PortfolioController
             header("Location: /portfolio");
         }
         else {
-            $_SESSION["errors"]["amountError"] = "You don't have enough shares of $stockSymbol";
-            header("Location: /sellForm?stockSymbol=$stockSymbol");
+            $_SESSION["errors"]["amountError"] = $response;
+            header("Location: /orderForm?stockSymbol=$stockSymbol");
         }
     }
 
@@ -73,7 +74,13 @@ class PortfolioController
     {
         // dependancy inject service
         $stockSymbol = $_GET["stockSymbol"];
-        $currentPrice = $this->orderFormService->execute($stockSymbol);
+        try {
+            $currentPrice = $this->orderFormService->execute($stockSymbol);
+
+        } catch (Exception $e){
+            header("Location: /");
+        }
+
         return new Template
         (
             "orderForm.twig",

@@ -17,22 +17,37 @@ class OrderService
     public function execute($id,
                             $stockSymbol,
                             $amount,
-                            $order): ?string
+                            $order): string
     {
         $currentPrice = (new FinnHubStockRepository())->getStock($stockSymbol)->getCurrentPrice();
-        $currentStockAmount = $this->repository->getStock($id, $stockSymbol);
+        $dollarBills = $this->repository->getUSD($id);
+
         $purseValue = $currentPrice * $amount;
-        if ($currentStockAmount >= $amount) {
-            $this->repository->saveTransaction(
-                $id,
-                $stockSymbol,
-                $amount,
-                $purseValue,
-                $currentPrice,
-                $order);
-            return "true";
+
+
+        if (! preg_match("/^[1-9]\d*$/", $amount)) {
+            return "Incorrect number format, only positive integers allowed";
         }
 
-        return null;
+        if ( $dollarBills < $purseValue && $order === "BUY"){
+
+            return "Not enough money in wallet";
+        }
+
+//        $currentStockAmount = $this->repository->getStock($id, $stockSymbol);
+
+
+//        if (! ($currentStockAmount >= $amount) && $order === "SELL"){
+//            return null;
+//        }
+
+        $this->repository->saveTransaction(
+            $id,
+            $stockSymbol,
+            $amount,
+            $purseValue,
+            $currentPrice,
+            $order);
+        return "true";
     }
 }

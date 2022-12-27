@@ -6,11 +6,13 @@ use Twig\Environment;
 use Twig\Loader\FilesystemLoader;
 use Dotenv\Dotenv;
 use WSB\Config;
+use WSB\MySqlDataBaseConnection;
 use WSB\Repositories\MySqlUserRepository;
 use WSB\Repositories\StockRepository;
 use WSB\Repositories\UserRepository;
 use WSB\Template;
 use function DI\autowire;
+use function DI\create;
 
 date_default_timezone_set("Europe/Riga");
 session_start();
@@ -20,10 +22,13 @@ $loader = new FilesystemLoader('../views');
 $twig = new Environment($loader);
 
 $container = new Container();
+//$container->set(
+//    Config::class, create(Config::class)->constructor($_ENV)
+//);
 $container->set(
-    Config::class, \DI\create(Config::class)->constructor($_ENV)
+    MySqlUserRepository::class,
+    autowire(MySqlUserRepository::class)
 );
-
 $container->set(
     UserRepository::class,
     autowire(MySqlUserRepository::class)
@@ -31,7 +36,7 @@ $container->set(
 
 $container->set(
     StockRepository::class,
-    autowire(\WSB\Repositories\FinnHubStockRepository::class)
+    create(\WSB\Repositories\FinnHubStockRepository::class)
 );
 
 
@@ -53,6 +58,8 @@ $dispatcher = FastRoute\simpleDispatcher
         $routes->addRoute('GET', '/orderForm', ['WSB\Controllers\PortfolioController', 'orderForm']);
         $routes->addRoute('GET', '/transactions', ['WSB\Controllers\PortfolioController', 'transactionView']);
         $routes->addRoute('GET', '/transfers', ['WSB\Controllers\TransferController', 'index']);
+        $routes->addRoute('POST', '/send', ['WSB\Controllers\TransferController', 'send']);
+        $routes->addRoute('GET', '/search', ['WSB\Controllers\HomeController', 'search']);
     }
 );
 
@@ -103,8 +110,3 @@ switch ($routeInfo[0]) {
         break;
 }
 
-
-/*
- * Table for users + repository
- * login view + login controller, account model
- */
