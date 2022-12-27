@@ -43,12 +43,21 @@ The technologies used:
 7. Run the server from public folder:
    php -S localhost:8000
    
-## See it in action:   
--Register:
+## See it in action:
+
+- Register:
+
 ![register](https://user-images.githubusercontent.com/44839765/209731759-3863c542-150e-4056-9eae-15148c3797df.gif)
 
--Buy, Sell, Short:
+- Buy, Sell, Short:
+
 ![buy2](https://user-images.githubusercontent.com/44839765/209733114-a73ef8d1-32f4-4575-b11f-73334f32fc85.gif)
+
+- Transactions, transfers:
+
+![transactions-transfers](https://user-images.githubusercontent.com/44839765/209733985-703295a4-e97a-4593-80b6-e392477d92a6.gif)
+
+
 
 
 
