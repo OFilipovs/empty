@@ -44,3 +44,4 @@ The technologies used:
    php -S localhost:8000
    
 ## See it in action:   
+![register](https://user-images.githubusercontent.com/44839765/209731759-3863c542-150e-4056-9eae-15148c3797df.gif)
