@@ -44,4 +44,11 @@ The technologies used:
    php -S localhost:8000
    
 ## See it in action:   
+-Register:
 ![register](https://user-images.githubusercontent.com/44839765/209731759-3863c542-150e-4056-9eae-15148c3797df.gif)
+
+-Buy, Sell, Short:
+![buy2](https://user-images.githubusercontent.com/44839765/209733114-a73ef8d1-32f4-4575-b11f-73334f32fc85.gif)
+
+
+
