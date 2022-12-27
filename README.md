@@ -18,7 +18,7 @@
    git clone https://github.com/renars1988/crypto-project.git
 
 2. Install dependencies:
-   <code>composer install<code>
+   composer install
 
 3. Create account at https://finnhub.io/register to get your API key.
 
@@ -29,6 +29,6 @@
 6. Import database.sql schema in to your database.
 
 7. Run the server from public folder:
-   <code>php -S localhost:8000<code>
+   php -S localhost:8000
    
 ## See it in action:   
